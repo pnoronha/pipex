@@ -26,17 +26,10 @@ void	get_path(char **envp)
 		base()->path[i] = ft_strjoin(base()->path[i], "/");
 }
 
-void	get_cmds(int argc, char **argv)
-{
-	int		i;
-
-	base()->cmds = malloc(sizeof(char *) * (argc - 2));
-	if (!base()->cmds)
-		exit_error(MEMORY_FAIL);
-	i = -1;
-	while (++i < argc - 3)
-		base()->cmds[i] = ft_strdup(argv[i + 2]);
-	base()->cmds[i] = NULL;
+void	get_cmds(char **argv)
+{	
+	base()->cmd1 = ft_split(argv[2], ' ');
+	base()->cmd2 = ft_split(argv[3], ' ');
 }
 
 void	parse_files(char **argv)
@@ -47,9 +40,9 @@ void	parse_files(char **argv)
 		exit(EXIT_FAILURE);
 }
 
-void	parsing(int argc, char **argv, char **envp)
+void	parsing(char **argv, char **envp)
 {
-	get_cmds(argc, argv);
 	get_path(envp);
+	get_cmds(argv);
 	parse_files(argv);
 }

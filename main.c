@@ -12,17 +12,6 @@
 
 #include "pipex.h"
 
-int	exit_error(int error_code)
-{
-	if (error_code == ARGS_NUMBER)
-		perror("Wrong number of arguments");
-	if (error_code == MEMORY_FAIL)
-		perror("Malloc");
-	if (error_code == FORK_FAIL)
-		perror("Fork");
-	exit(EXIT_FAILURE);
-}
-
 t_pipex	*base(void)
 {
 	static t_pipex	p;
@@ -30,37 +19,75 @@ t_pipex	*base(void)
 	return (&p);
 }
 
-// int	child_process(int f1, int cmd1)
-// {
-// 	if (dup2 < 0)
-// 	dup2(f1, STDIN_FILENO);
-// 	dup2(end[1], cmd1);
+static void	child_process(t_pipex *p)
+{
+	char	*cmd;
+	int		i;
 
-// 	close(f1);
-// 	exit(EXIT_FAILURE);
-// }
+	if (dup2(p->file_in, STDIN_FILENO) < 0)
+		perror("dup2");
+	if (dup2(p->end[1], STDOUT_FILENO) < 0)
+		perror("dup2");
+	close (p->end[0]);
+	close (p->file_in);
+	i = -1;
+	while (base()->path[++i] != NULL)
+	{
+		cmd = ft_strjoin(base()->path[i], base()->cmd1[0]);
+		printf("%s\n", cmd);
+		execve(cmd, p->cmd1, NULL);
+		free(cmd);
+	}
+	exit(EXIT_FAILURE);
+}
 
-// void	pipex(int f1, int f2, t_pipex *p)
-// {
-// 	int		end[2];
-// 	pid_t	parent;
+static void	parent_process(t_pipex *p)
+{
+	char	*cmd;
+	int		status;
+	int		i;
 
-// 	pipe(end);
-// 	parent = fork();
-// 	if (parent < 0)
-// 		exit_error(FORK_FAIL);
-// 	if (!parent)
-// 		child_process(f1, cmd1);
-// 	else
-// 		parent_process(f2, cmd2);
-// }
+	waitpid(-1, &status, 0);
+	if (dup2(p->file_out, STDOUT_FILENO) < 0)
+		perror("dup2");
+	if (dup2(p->end[0], STDIN_FILENO) < 0)
+		perror("dup2");
+	close (p->end[1]);
+	close (p->file_out);
+	i = -1;
+	while (base()->path[++i])
+	{
+		cmd = ft_strjoin(base()->path[i], base()->cmd2[0]);
+		// printf("%s\n", cmd);
+		execve(cmd, p->cmd2, NULL);
+		free(cmd);
+	}
+	exit(EXIT_FAILURE);
+}
+
+static void	pipex(t_pipex *p)
+{
+	pid_t	pid;
+
+	if(pipe(base()->end) == -1)
+		perror("Pipe");
+	pid = fork();
+	if (pid == -1)
+		perror("Fork");
+	if (!pid)
+		child_process(p);
+	else
+		parent_process(p);
+}
 
 int	main(int argc, char **argv, char **envp)
 {
 	if (argc != 5)
-		exit_error(ARGS_NUMBER);
-	parsing(argc, argv, envp);
-	
-	// pipex(f1, f2, base());
+	{
+		perror("Args number");
+		exit(EXIT_FAILURE);
+	}
+	parsing(argv, envp);
+	pipex(base());
 	return (EXIT_SUCCESS);
 }

@@ -23,31 +23,20 @@ enum	e_boolean
 	true
 };
 
-enum	e_exit_code
-{
-	ARGS_NUMBER,
-	MEMORY_FAIL,
-	FORK_FAIL,
-	BUFF_NOT_SET,
-	BUFF_ADDR_NOT_SET
-};
-
 typedef struct s_pipex
 {
 	char	**args;
 	char	**path;
-	char	**cmds;
+	char	**cmd1;
+	char	**cmd2;
 	int		file_in;
 	int		file_out;
+	int		end[2];
 
 }	t_pipex;
 
 t_pipex	*base(void);
 
-void	pipex(int f1, int f2, t_pipex *p);
-
-void	parsing(int argc, char **argv, char **envp);
-
-int		exit_error(int error_code);
+void	parsing(char **argv, char **envp);
 
 #endif
