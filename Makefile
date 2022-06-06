@@ -6,7 +6,7 @@
 #    By: pnoronha <pnoronha@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/05/03 18:15:19 by pnoronha          #+#    #+#              #
-#    Updated: 2022/05/05 16:46:31 by pnoronha         ###   ########.fr        #
+#    Updated: 2022/06/06 22:23:06 by pnoronha         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,31 +19,31 @@ LINK		=	-Llibft -lft
 RM			=	rm -f
 
 SRC			=	main.c	\
-				parse.c
+				parse.c	\
+				pipex.c
 
 OBJ			:=	$(SRC:%.c=%.o)
 
-all:		libft $(NAME)
+all:		libft $(NAME) clean
 
 $(NAME):	$(OBJ)
-		@$(CC) $(CFLAGS) $^ $(LINK) -o $@
+		@$(CC) $(CFLAGS) $(^) $(LINK) -o $(@)
+		@echo "\n\033[7;1;3;32m >> Pipex Compiled <<\033[m"
 
 %.o: %.c
-		@$(CC) $(CFLAGS) $(INC) -c $^ -o $@
+		@$(CC) $(CFLAGS) $(INC) -c $(^) -o $(@)
 
 norm:
 		@norminette -R CheckForbiddenSourceHeader $(SRC)
 		@norminette -R CheckDefine includes/*
 
-test:
+test: re
 		valgrind --tool=memcheck --leak-check=yes --show-reachable=yes \
-		--num-callers=20 --track-fds=yes ./$(NAME)
-
+		--num-callers=20 --track-fds=yes ./$(NAME) parse.c "/grep 2" "wc" out
 libft:
 		@make -C libft
 
 clean:
-		@make clean -C libft
 		@$(RM) $(OBJ)
 
 fclean:		clean
@@ -52,4 +52,6 @@ fclean:		clean
 
 re:			fclean all
 
-.PHONY : 	all clean fclean re norm test libft
+cl:			all clean
+
+.PHONY:	all clean fclean re norm test libft

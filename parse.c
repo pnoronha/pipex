@@ -6,7 +6,7 @@
 /*   By: pnoronha <pnoronha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/04 14:07:21 by pnoronha          #+#    #+#             */
-/*   Updated: 2022/05/12 14:11:25 by pnoronha         ###   ########.fr       */
+/*   Updated: 2022/06/06 22:29:15 by pnoronha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,31 +18,49 @@ void	get_path(char **envp)
 	char	*env_path;
 
 	i = 0;
-	while (ft_strncmp("PATH=", envp[i], 4) && envp[i++])
-	env_path = ft_substr(envp[i], 5, ft_strlen(envp[i]));
-	base()->path = ft_split(env_path, ':');
-	i = -1;
-	while(base()->path[++i] != NULL)
-		base()->path[i] = ft_strjoin(base()->path[i], "/");
+	while (ft_strncmp("PATH=", envp[i], 5) && envp[i])
+		i++;
+	env_path = envp[i] + 5;
+	ppx()->path = ft_split(env_path, ':');
 }
 
 void	get_cmds(char **argv)
-{	
-	base()->cmd1 = ft_split(argv[2], ' ');
-	base()->cmd2 = ft_split(argv[3], ' ');
+{
+	(ppx())->cmd1 = ft_split(argv[2], ' ');
+	(ppx())->cmd2 = ft_split(argv[3], ' ');
 }
 
 void	parse_files(char **argv)
 {
-	base()->file_in = open(argv[1], O_RDONLY);
-	base()->file_out = open(argv[4], O_CREAT | O_RDWR | O_TRUNC | 0644);
-	if (base()->file_in < 0 || base()->file_out < 0)
-		exit(EXIT_FAILURE);
+	(ppx())->file_in = open(argv[1], O_RDONLY);
+	if (ppx()->file_in < 0)
+	{
+		close(ppx()->file_in);
+		free_pipex();
+		exit_error("open > Failed to open file");
+	}
+	(ppx())->file_out = open(argv[4], O_CREAT | O_RDWR | O_TRUNC, 0644);
+	if (ppx()->file_out < 0)
+	{
+		close(ppx()->file_in);
+		close(ppx()->file_out);
+		free_pipex();
+		exit_error("open > Failed to open file");
+	}
 }
 
-void	parsing(char **argv, char **envp)
+void	parsing(int argc, char **argv, char **envp)
 {
+	if (argc != 5)
+		exit_error("Arguments number");
 	get_path(envp);
 	get_cmds(argv);
 	parse_files(argv);
+}
+
+void	free_pipex(void)
+{
+	ft_free_dptr((void **)ppx()->path);
+	ft_free_dptr((void **)ppx()->cmd1);
+	ft_free_dptr((void **)ppx()->cmd2);
 }
