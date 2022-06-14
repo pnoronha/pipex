@@ -1,34 +1,45 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   exit.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pnoronha <pnoronha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/05/03 18:21:32 by pnoronha          #+#    #+#             */
-/*   Updated: 2022/06/06 20:44:19 by pnoronha         ###   ########.fr       */
+/*   Created: 2022/06/14 21:03:25 by pnoronha          #+#    #+#             */
+/*   Updated: 2022/06/14 21:03:33 by pnoronha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-t_pipex	*ppx(void)
+void	free_pipex(void)
 {
-	static t_pipex	p;
+	int	i;
 
-	return (&p);
+	if (ppx())
+	{
+		if (ppx()->path)
+			ft_free_dptr((void **)ppx()->path);
+		if (ppx()->cmds)
+		{
+			i = -1;
+			while (ppx()->cmds[++i] != NULL)
+				ft_free_dptr((void **)ppx()->cmds[i]);
+			free(ppx()->cmds);
+		}
+	}
+	if (doc())
+	{
+		if (doc()->here_input)
+			free(doc()->here_input);
+		if (doc()->here_doc)
+			unlink(".infile_tmp");
+	}
 }
 
 void	exit_error(char *error_msg)
 {
+	free_pipex();
 	perror(error_msg);
 	exit(EXIT_FAILURE);
-}
-
-int	main(int argc, char **argv, char **envp)
-{
-	parsing(argc, argv, envp);
-	pipex(ppx());
-	free_pipex();
-	return (EXIT_SUCCESS);
 }
