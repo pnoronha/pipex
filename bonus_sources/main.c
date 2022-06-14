@@ -6,17 +6,24 @@
 /*   By: pnoronha <pnoronha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/03 18:21:32 by pnoronha          #+#    #+#             */
-/*   Updated: 2022/06/14 22:11:17 by pnoronha         ###   ########.fr       */
+/*   Updated: 2022/06/14 22:02:37 by pnoronha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+#include "bonus_pipex.h"
 
 t_pipex	*ppx(void)
 {
 	static t_pipex	p;
 
 	return (&p);
+}
+
+t_heredoc	*doc(void)
+{
+	static t_heredoc	doc;
+
+	return (&doc);
 }
 
 int	main(int argc, char **argv, char **envp)

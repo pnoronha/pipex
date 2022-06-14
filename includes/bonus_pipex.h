@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipex.h                                            :+:      :+:    :+:   */
+/*   bonus_pipex.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pnoronha <pnoronha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/03 18:22:16 by pnoronha          #+#    #+#             */
-/*   Updated: 2022/06/14 22:25:25 by pnoronha         ###   ########.fr       */
+/*   Updated: 2022/06/14 22:01:50 by pnoronha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PIPEX_H
-# define PIPEX_H
+#ifndef BONUS_PIPEX_H
+# define BONUS_PIPEX_H
 
 # include <stdio.h>
 # include <fcntl.h>
@@ -29,7 +29,15 @@ typedef struct s_pipex
 
 }	t_pipex;
 
+typedef struct s_heredoc
+{
+	char	*limiter;
+	char	*here_input;
+	int		here_doc;
+}	t_heredoc;
+
 t_pipex		*ppx(void);
+t_heredoc	*doc(void);
 
 void		pipex(t_pipex *p);
 

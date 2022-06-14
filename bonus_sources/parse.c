@@ -6,31 +6,30 @@
 /*   By: pnoronha <pnoronha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/04 14:07:21 by pnoronha          #+#    #+#             */
-/*   Updated: 2022/06/14 22:33:03 by pnoronha         ###   ########.fr       */
+/*   Updated: 2022/06/14 22:02:53 by pnoronha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+#include "bonus_pipex.h"
 
 static void	join_path_to_cmds(void)
 {
 	char	*aux_path;
 	char	*cmd;
-	int		i;
-	int		j;
+	int		index[2];
 
-	i = -1;
-	while (ppx()->cmds[++i] != NULL)
+	index[0] = -1;
+	while (ppx()->cmds[++index[0]] != NULL)
 	{
-		j = -1;
-		while (ppx()->path[++j] != NULL)
+		index[1] = -1;
+		while (ppx()->path[++index[1]] != NULL)
 		{
-			aux_path = ft_strjoin(ppx()->path[j], "/");
-			cmd = ft_strjoin(aux_path, ppx()->cmds[i][0]);
+			aux_path = ft_strjoin(ppx()->path[index[1]], "/");
+			cmd = ft_strjoin(aux_path, ppx()->cmds[index[0]][0]);
 			if (access(cmd, F_OK) != -1)
 			{
-				free(ppx()->cmds[i][0]);
-				ppx()->cmds[i][0] = ft_strdup(cmd);
+				free(ppx()->cmds[index[0]][0]);
+				ppx()->cmds[index[0]][0] = ft_strdup(cmd);
 				free(aux_path);
 				free(cmd);
 				break ;
@@ -54,23 +53,43 @@ static void	get_path(char **envp)
 static void	get_cmds(int argc, char **argv)
 {
 	int	i;
+	int	here_doc;
 
-	i = 2;
-	ppx()->cmds = malloc(sizeof(char *) * (argc - 2));
+	here_doc = 2 + doc()->here_doc;
+	i = here_doc;
+	ppx()->cmds = malloc(sizeof(char *) * (argc - here_doc));
 	while (i < (argc - 1))
 	{
-		(ppx())->cmds[i - 2] = ft_split(argv[i], ' ');
+		(ppx())->cmds[i - here_doc] = ft_split(argv[i], ' ');
 		i++;
 	}
-	ppx()->cmds[i - 2] = NULL;
+	ppx()->cmds[i - here_doc] = NULL;
+}
+
+static void	check_args(int argc, char **argv)
+{
+	if (argc < 5)
+		exit_error("Arguments number");
+	if (!ft_strncmp("here_doc", argv[1], 9))
+	{
+		if (argc < 6)
+			exit_error("Arguments number");
+		doc()->here_doc = 1;
+		doc()->limiter = argv[2];
+	}
+	else
+	{
+		if (argc < 5)
+			exit_error("Arguments number");
+		doc()->here_doc = 0;
+	}
 }
 
 void	parsing(int argc, char **argv, char **envp)
 {
-	if (argc != 5)
-		exit_error("Arguments number");
+	check_args(argc, argv);
 	ppx()->envp = envp;
-	ppx()->nbr_cmd = argc - 3;
+	ppx()->nbr_cmd = argc - 3 - doc()->here_doc;
 	get_path(envp);
 	get_cmds(argc, argv);
 	join_path_to_cmds();
